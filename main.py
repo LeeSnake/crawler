@@ -2,7 +2,7 @@ import random
 import requests
 from bs4 import BeautifulSoup
 import resource
-
+import pymysql
 if __name__ == '__main__':
     for i in range(0, 10):
         headers = {
@@ -27,4 +27,18 @@ if __name__ == '__main__':
                 quote = tag.find('span', attrs={'class': 'inq'}).get_text()
             except AttributeError:
                 quote = None
-            print(name, author, rating, quote, link)
+            # 链接服务端
+            conn = pymysql.connect(
+                host='localhost',  # MySQL服务端的IP地址
+                port=3306,  # MySQL默认PORT地址(端口号)
+                user='root',  # 用户名
+                password='123456',  # 密码
+                database='crawler',  # 库名称
+                charset='utf8'  # 字符编码
+            )
+            cur = conn.cursor()
+            sql = "INSERT INTO book(name,author,rating,quote,link) VALUES ('%s', '%s', '%s', '%s', '%s');" % (name, author, rating, quote, link)
+            cur.execute(sql)
+            cur.close()
+            conn.commit()
+            conn.close()
